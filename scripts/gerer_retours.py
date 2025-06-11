@@ -1,4 +1,4 @@
-"""Validate presence of MOP for applicable requirements."""
+"""Process evaluator feedback and log issues."""
 
 from __future__ import annotations
 
@@ -8,9 +8,9 @@ from pathlib import Path
 
 import pandas as pd
 
-LOG_FILE = Path("logs/check_mop.log")
-AUDIT_FILE = Path("audit/mop_manquants.csv")
-DATA_FILE = Path("data/mop.xlsx")
+LOG_FILE = Path("logs/gerer_retours.log")
+AUDIT_FILE = Path("audit/retours_critiques.csv")
+DATA_FILE = Path("data/retours.xlsx")
 
 
 def setup_logger() -> None:
@@ -22,15 +22,15 @@ def setup_logger() -> None:
     )
 
 
-def check_mop(filepath: Path) -> pd.DataFrame:
-    """Return rows with missing MOP."""
+def extract_critiques(filepath: Path) -> pd.DataFrame:
+    """Return critical feedback lines."""
     df = pd.read_excel(filepath, engine="openpyxl")
-    mask = (df.get("Applicability") == "Oui") & (df.get("MOP").isna())
+    mask = df.get("Criticité", "").str.lower() == "elevee"
     return df.loc[mask]
 
 
 def main() -> None:
-    """Script entry point."""
+    """Entry point."""
     setup_logger()
 
     if not DATA_FILE.exists():
@@ -38,17 +38,17 @@ def main() -> None:
         sys.exit(1)
 
     try:
-        invalid_rows = check_mop(DATA_FILE)
+        critiques = extract_critiques(DATA_FILE)
     except Exception as exc:
-        logging.exception("Erreur lors de la lecture du fichier: %s", exc)
+        logging.exception("Erreur de lecture des retours: %s", exc)
         sys.exit(1)
 
-    if not invalid_rows.empty:
-        invalid_rows.to_csv(AUDIT_FILE, index=False)
-        logging.warning("MOP manquants: %d", len(invalid_rows))
+    if not critiques.empty:
+        critiques.to_csv(AUDIT_FILE, index=False)
+        logging.warning("Retours critiques identifies: %d", len(critiques))
         sys.exit(1)
 
-    logging.info("Tous les MOP sont renseignes")
+    logging.info("Aucun retour critique")
     sys.exit(0)
 
 

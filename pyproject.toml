@@ -1,11 +1,11 @@
-
 [project]
 name = "workflow-certif"
 version = "0.1.0"
 description = "Pipeline de certification industrialisé pour CAF"
 authors = [{name = "Florian Maillard"}]
-readme = "README_workflow_certif.md"
-requires-python = ">=3.9"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["pandas", "openpyxl", "pyyaml"]
 
 [project.scripts]
 run-certif = "main:main"

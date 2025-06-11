@@ -1,11 +1,14 @@
-
-# Makefile pour exécution du workflow de certification
-
+PYTHON=python3
 YAML=workflow_certif.yaml
-PHASE?=all
 
 run:
-	python main.py --yaml $(YAML)
+	$(PYTHON) main.py --yaml $(YAML)
 
-phase:
-	python main.py --yaml $(YAML) --phase $(PHASE)
+lint:
+	ruff scripts main.py || flake8 scripts main.py
+
+test:
+	pytest tests
+
+doc:
+	pdoc --html --output-dir docs scripts
