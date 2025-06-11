@@ -23,6 +23,15 @@ steps:
     script: scripts/gerer_retours.py
     description: Intègre les retours des évaluateurs et trace les échanges
 
+  - id: analyse_impact_retours
+    script: scripts/analyse_retours.py
+    description: Analyse simple de la répartition des criticités
+  
+  - id: synthese_retours
+    script: scripts/synthese_retours.py
+    description: Regroupement des commentaires par exigence
+
+
 log_folder: logs
 audit_folder: audit
 data_folder: data
