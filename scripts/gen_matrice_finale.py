@@ -1,4 +1,17 @@
-"""Generate the final compliance matrix from validated evidence."""
+"""
+Correspond à l'étape `step3_generate_matrix` définie dans `workflow_certif.yaml`.
+
+Description YAML :
+  - id: step3_generate_matrix
+  - description: Génère une matrice consolidée avec l’ensemble des exigences, justifications et preuves.
+  - input: data/exigences.xlsx
+  - output: out/matrice_certif.xlsx
+
+Instructions Codex :
+→ Implémenter cette logique dans ce fichier.
+→ Utiliser du code clair, modulaire, robuste (pandas, pathlib, logging, etc.).
+→ Voir aussi `README.md` et `AGENTS.md` pour le contexte global.
+"""
 
 from __future__ import annotations
 
