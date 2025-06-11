@@ -1,4 +1,16 @@
-"""Check design and test evidences for applicable requirements."""
+"""Correspond à l'étape `step2_check_preuves` définie dans `workflow_certif.yaml`.
+
+Description YAML :
+  - id: step2_check_preuves
+  - description: Vérifie la présence de preuves de conception et de test pour chaque exigence applicable.
+  - input: data/exigences.xlsx
+  - output: audit/preuves_manquantes.csv
+
+Instructions Codex :
+→ Implémenter cette logique dans ce fichier.
+→ Utiliser du code clair, modulaire, robuste (pandas, pathlib, logging, etc.).
+→ Voir aussi `README.md` et `AGENTS.md` pour le contexte global.
+"""
 
 from __future__ import annotations
 
