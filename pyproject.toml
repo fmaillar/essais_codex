@@ -1,0 +1,18 @@
+
+[project]
+name = "workflow-certif"
+version = "0.1.0"
+description = "Pipeline de certification industrialisé pour CAF"
+authors = [{name = "Florian Maillard"}]
+readme = "README_workflow_certif.md"
+requires-python = ">=3.9"
+
+[project.scripts]
+run-certif = "main:main"
+
+[tool.setuptools]
+packages = ["scripts"]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
