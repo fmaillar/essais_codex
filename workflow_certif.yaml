@@ -1,0 +1,75 @@
+metadata:
+  version: "1.0"
+  created_at: "2025-06-11"
+  documents_base_path: "./documents/"
+  preuves_base_path: "./Preuves/"
+
+workflow:
+  - id: identification_exigences
+    description: "Extraction et validation des exigences depuis le pivot ou Doors"
+    actor: CAM
+    input: "pivot/exigences.csv"
+    output: "pivot/exigences_validées.csv"
+    script: "scripts/check_exigences.py"
+    checks:
+      - check_unicite_ids
+      - check_applicabilite_nonvide
+    requires_validation: true
+    on_error: stop
+
+  - id: allocation_mop
+    description: "Allocation des MOP à chaque exigence applicable"
+    actor: TXE
+    input: "pivot/exigences_validées.csv"
+    output: "pivot/exigences_mop.csv"
+    script: "scripts/check_mop.py"
+    checks:
+      - check_presence_mop
+    requires_validation: false
+    on_error: warn
+
+  - id: verification_preuves
+    description: "Contrôle des preuves associées (existence, statut, traçabilité)"
+    actor: XE
+    input: "pivot/exigences_mop.csv"
+    evidences_path: "Preuves/"
+    output: "audit/rapport_preuves.xlsx"
+    script: "scripts/check_preuves.py"
+    checks:
+      - check_preuves_existantes
+      - check_statut_conformite
+      - check_tracabilite
+    requires_validation: true
+    on_error: stop
+
+  - id: soumission_evaluateurs
+    description: "Préparation de la matrice et soumission aux NoBo / DeBo"
+    actor: CAM
+    input: "audit/rapport_preuves.xlsx"
+    output: "matrices/matrice_finale.xlsx"
+    script: "scripts/gen_matrice_finale.py"
+    checks:
+      - check_completude_matrice
+      - check_liens_hypertextes
+    requires_validation: true
+    on_error: stop
+
+  - id: retour_evaluateurs
+    description: "Traitement des retours et analyse d’impact"
+    actor: CAM
+    input: "matrices/matrice_finale.xlsx"
+    output: "audit/analyse_retours.yaml"
+    script: "scripts/analyse_retours.py"
+    checks:
+      - check_retours_critiques
+      - check_revisions
+    requires_validation: false
+    on_error: continue
+
+settings:
+  strict_mode: true
+  log_dir: "logs/"
+  output_dir: "résultats_audit/"
+  stop_on_blocking: true
+  default_on_error: warn
+  validation_required_by_default: true
