@@ -28,4 +28,6 @@ def test_compute_impact(tmp_path: Path) -> None:
 
     report = compute_impact(file_path)
     assert report.loc[report["Criticite"] == "élevée", "Occurrences"].iat[0] == 2
+    assert "Poids" in report.columns
+    assert report.iloc[-1]["Criticite"] == "Score global"
 
