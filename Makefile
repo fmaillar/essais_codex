@@ -42,7 +42,9 @@ lint:
 	ruff check .
 
 test:
-	pytest -q
+       pytest -q
+
+test_all: test
 
 doc:
 	pdoc --html --output-dir docs main.py scripts
