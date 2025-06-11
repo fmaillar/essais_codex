@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from .utils import DEFAULT_SHEETS, find_column, read_first_sheet
+
 LOG_FILE = Path("logs/check_preuves.log")
 AUDIT_FILE = Path("audit/preuves_manquantes.csv")
 EXIG_AUDIT_FILE = Path("audit/exigences_sans_preuves.csv")
@@ -44,16 +46,23 @@ def check_preuves(filepath: Path) -> pd.DataFrame:
     pandas.DataFrame
         DataFrame of requirements missing either design or test evidence.
     """
-    df = pd.read_excel(filepath, engine="openpyxl")
+    df = read_first_sheet(filepath, DEFAULT_SHEETS)
 
-    applicability_col = df.filter(regex="(?i)applicab").columns
-    if not applicability_col.empty:
-        applicability_col = applicability_col[0]
-    else:  # fallback when column absent
+    try:
+        applicability_col = find_column(
+            df,
+            [r"^Applicabilit[ée]$", r"^Applicability$"],
+            [r"applicab"],
+        )
+    except KeyError:
         applicability_col = None
 
-    design_col = df.filter(regex="(?i)preuve.*conc").columns[0]
-    test_col = df.filter(regex="(?i)preuve.*test").columns[0]
+    design_col = find_column(
+        df,
+        [r"preuve.*conception"],
+        [r"preuve.*conc"],
+    )
+    test_col = find_column(df, [r"preuve.*test"], None)
 
     mask = df[design_col].isna() | df[test_col].isna()
     if applicability_col:
@@ -78,13 +87,17 @@ def exigences_sans_preuves(
     pandas.DataFrame
         DataFrame listing requirement identifiers without associated evidence.
     """
-    df_exig = pd.read_excel(exig_path, engine="openpyxl")
-    df_preuves = pd.read_excel(preuves_path, engine="openpyxl")
+    df_exig = read_first_sheet(exig_path, DEFAULT_SHEETS)
+    df_preuves = read_first_sheet(preuves_path, DEFAULT_SHEETS)
 
-    id_exig = df_exig.filter(regex="(?i)id|exig").columns[0]
-    id_prev = df_preuves.filter(regex="(?i)id|exig").columns[0]
-    design_col = df_preuves.filter(regex="(?i)preuve.*conc").columns[0]
-    test_col = df_preuves.filter(regex="(?i)preuve.*test").columns[0]
+    id_exig = find_column(df_exig, [r"^ID$", r"^Exig"], [r"id"])
+    id_prev = find_column(df_preuves, [r"^ID$", r"^Exig"], [r"id"])
+    design_col = find_column(
+        df_preuves,
+        [r"preuve.*conception"],
+        [r"preuve.*conc"],
+    )
+    test_col = find_column(df_preuves, [r"preuve.*test"], None)
 
     merged = df_exig[[id_exig]].merge(
         df_preuves[[id_prev, design_col, test_col]],
@@ -112,9 +125,13 @@ def main() -> None:
             logging.error("Fichier %s introuvable", path)
             sys.exit(1)
 
+    logging.info("Lecture des fichiers: %s et %s", PREUVES_FILE, EXIG_FILE)
     try:
         invalid_rows = check_preuves(PREUVES_FILE)
         missing_exig = exigences_sans_preuves(EXIG_FILE, PREUVES_FILE)
+    except KeyError as exc:
+        logging.error("%s", exc)
+        sys.exit(1)
     except Exception as exc:
         logging.exception("Erreur lors de la lecture du fichier: %s", exc)
         sys.exit(1)

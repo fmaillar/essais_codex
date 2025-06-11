@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from .utils import DEFAULT_SHEETS, find_column, read_first_sheet
+
 LOG_FILE = Path("logs/gen_matrice_finale.log")
 OUTPUT_FILE = Path("audit/matrice_finale.xlsx")
 EVIDENCE_FILE = Path("data/preuves.xlsx")
@@ -42,11 +44,11 @@ def generate_matrix(filepath: Path) -> pd.DataFrame:
     pandas.DataFrame
         Filtered DataFrame containing only valid entries.
     """
-    df = pd.read_excel(filepath, engine="openpyxl")
+    df = read_first_sheet(filepath, DEFAULT_SHEETS)
 
-    applicability_col = df.filter(regex="(?i)applicab").columns[0]
-    design_col = df.filter(regex="(?i)preuve.*conception").columns[0]
-    test_col = df.filter(regex="(?i)preuve.*test").columns[0]
+    applicability_col = find_column(df, [r"^Applicabilit[ée]$", r"^Applicability$"], [r"applicab"])
+    design_col = find_column(df, [r"preuve.*conception"], [r"preuve.*conc"])
+    test_col = find_column(df, [r"preuve.*test"], None)
 
     mask = (
         df[applicability_col].str.lower() == "oui"
@@ -69,8 +71,12 @@ def main() -> None:
         logging.error("Fichier %s introuvable", EVIDENCE_FILE)
         sys.exit(1)
 
+    logging.info("Lecture du fichier: %s", EVIDENCE_FILE)
     try:
         matrix = generate_matrix(EVIDENCE_FILE)
+    except KeyError as exc:
+        logging.error("%s", exc)
+        sys.exit(1)
     except Exception as exc:  # fallback for unexpected format
         logging.exception("Erreur lors du traitement du fichier: %s", exc)
         sys.exit(1)
