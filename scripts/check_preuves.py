@@ -1,16 +1,4 @@
-"""Correspond à l'étape `step2_check_preuves` définie dans `workflow_certif.yaml`.
-
-Description YAML :
-  - id: step2_check_preuves
-  - description: Vérifie la présence de preuves de conception et de test pour chaque exigence applicable.
-  - input: data/exigences.xlsx
-  - output: audit/preuves_manquantes.csv
-
-Instructions Codex :
-→ Implémenter cette logique dans ce fichier.
-→ Utiliser du code clair, modulaire, robuste (pandas, pathlib, logging, etc.).
-→ Voir aussi `README.md` et `AGENTS.md` pour le contexte global.
-"""
+"""Validate design and test evidence for each applicable requirement."""
 
 from __future__ import annotations
 
@@ -28,7 +16,13 @@ EXIG_FILE = Path("data/exigences.xlsx")
 
 
 def setup_logger() -> None:
-    """Configure logging."""
+    """Configure file-based logging.
+
+    Returns
+    -------
+    None
+        The logger is configured for this module.
+    """
     LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         filename=LOG_FILE,
@@ -38,7 +32,18 @@ def setup_logger() -> None:
 
 
 def check_preuves(filepath: Path) -> pd.DataFrame:
-    """Return rows missing design or test evidence."""
+    """Return rows missing design or test evidence.
+
+    Parameters
+    ----------
+    filepath : Path
+        Path to the Excel file listing evidence.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame of requirements missing either design or test evidence.
+    """
     df = pd.read_excel(filepath, engine="openpyxl")
 
     applicability_col = df.filter(regex="(?i)applicab").columns
@@ -56,8 +61,23 @@ def check_preuves(filepath: Path) -> pd.DataFrame:
     return df.loc[mask]
 
 
-def exigences_sans_preuves(exig_path: Path, preuves_path: Path) -> pd.DataFrame:
-    """Return requirements with no design or test evidence."""
+def exigences_sans_preuves(
+    exig_path: Path, preuves_path: Path
+) -> pd.DataFrame:
+    """Return requirements with no design or test evidence.
+
+    Parameters
+    ----------
+    exig_path : Path
+        Path to the Excel file containing requirements.
+    preuves_path : Path
+        Path to the Excel file containing evidence.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame listing requirement identifiers without associated evidence.
+    """
     df_exig = pd.read_excel(exig_path, engine="openpyxl")
     df_preuves = pd.read_excel(preuves_path, engine="openpyxl")
 
@@ -78,7 +98,13 @@ def exigences_sans_preuves(exig_path: Path, preuves_path: Path) -> pd.DataFrame:
 
 
 def main() -> None:
-    """Entry point."""
+    """Check evidence files and export missing information.
+
+    Returns
+    -------
+    None
+        Exits with status ``0`` if everything is present, ``1`` otherwise.
+    """
     setup_logger()
 
     for path in (PREUVES_FILE, EXIG_FILE):

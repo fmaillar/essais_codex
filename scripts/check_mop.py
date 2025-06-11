@@ -1,4 +1,4 @@
-"""Validate presence of MOP for applicable requirements."""
+"""Check the presence of MOP for each applicable requirement."""
 
 from __future__ import annotations
 
@@ -14,7 +14,13 @@ DATA_FILE = Path("data/mop.xlsx")
 
 
 def setup_logger() -> None:
-    """Configure logging."""
+    """Configure file-based logging.
+
+    Returns
+    -------
+    None
+        The logger is configured for this module.
+    """
     LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         filename=LOG_FILE,
@@ -24,14 +30,31 @@ def setup_logger() -> None:
 
 
 def check_mop(filepath: Path) -> pd.DataFrame:
-    """Return rows with missing MOP."""
+    """Return rows with missing MOP.
+
+    Parameters
+    ----------
+    filepath : Path
+        Path to the Excel file describing the MOP.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame of requirements lacking a MOP.
+    """
     df = pd.read_excel(filepath, engine="openpyxl")
     mask = (df.get("Applicability") == "Oui") & (df.get("MOP").isna())
     return df.loc[mask]
 
 
 def main() -> None:
-    """Script entry point."""
+    """Validate MOP presence and export missing entries.
+
+    Returns
+    -------
+    None
+        Exits with status code ``0`` or ``1`` depending on the result.
+    """
     setup_logger()
 
     if not DATA_FILE.exists():

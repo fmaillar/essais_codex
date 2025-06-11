@@ -1,24 +1,24 @@
-"""
-Script `synthese_retours.py` – Complément à `analyse_retours.py`
-
-Objectif :
-  - Produire une synthèse des retours par exigence.
-  - Permet de visualiser les commentaires regroupés et d’estimer leur importance.
-
-Entrée :
-  - Fichier Excel : `data/retours.xlsx`
-    avec colonnes attendues : `Exigence`, `Commentaire`, `Criticité`
-
-Sortie :
-  - Fichier Excel : `audit/synthese_retours.xlsx` structuré par criticité.
-
-"""
+"""Produce a summarized view of evaluator feedback."""
 
 import pandas as pd
 from pathlib import Path
 
 
 def synthese_retours(input_path: Path, output_path: Path) -> None:
+    """Generate a synthesis workbook from evaluator feedback.
+
+    Parameters
+    ----------
+    input_path : Path
+        Excel file containing raw feedback.
+    output_path : Path
+        Destination of the synthesized Excel file.
+
+    Returns
+    -------
+    None
+        The synthesized Excel file is written to ``output_path``.
+    """
     df = pd.read_excel(input_path, engine="openpyxl")
 
     required_cols = {"Exigence", "Commentaire", "Criticité"}
