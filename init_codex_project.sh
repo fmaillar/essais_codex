@@ -43,7 +43,7 @@ run:
 	python3 src/main.py
 
 lint:
-	ruff src/ || flake8 src/
+	ruff lint src/ || flake8 src/
 
 test:
 	pytest tests/
