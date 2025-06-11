@@ -1,14 +1,31 @@
-PYTHON=python3
-YAML=workflow_certif.yaml
+.PHONY: all check_exigences check_mop check_preuves soumettre_dossier gerer_retours analyse_impact_retours synthese_retours
 
-run:
-	$(PYTHON) main.py --yaml $(YAML)
+all: check_exigences check_mop check_preuves soumettre_dossier gerer_retours analyse_impact_retours synthese_retours
 
-lint:
-	ruff scripts main.py || flake8 scripts main.py
+check_exigences:
+	@echo "=== Vérification des exigences ==="
+	python scripts/check_exigences.py >> logs/check_exigences.log 2>&1 || exit 1
 
-test:
-	pytest tests
+check_mop:
+	@echo "=== Vérification des MOP ==="
+	python scripts/check_mop.py >> logs/check_mop.log 2>&1 || exit 1
 
-doc:
-	pdoc --html --output-dir docs scripts
+check_preuves:
+	@echo "=== Vérification des preuves ==="
+	python scripts/check_preuves.py >> logs/check_preuves.log 2>&1 || exit 1
+
+soumettre_dossier:
+	@echo "=== Soumission du dossier ==="
+	python scripts/soumettre_dossier.py >> logs/soumettre_dossier.log 2>&1 || exit 1
+
+gerer_retours:
+	@echo "=== Gestion des retours des évaluateurs ==="
+	python scripts/gerer_retours.py >> logs/gerer_retours.log 2>&1 || exit 1
+
+analyse_impact_retours:
+	@echo "=== Analyse de l'impact des retours ==="
+	python scripts/analyse_retours.py >> logs/analyse_retours.log 2>&1 || exit 1
+
+synthese_retours:
+	@echo "=== Synthèse des retours par exigence ==="
+	python scripts/synthese_retours.py >> logs/synthese_retours.log 2>&1 || exit 1
