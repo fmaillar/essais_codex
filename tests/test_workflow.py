@@ -10,4 +10,4 @@ from main import load_workflow
 def test_load_workflow() -> None:
     cfg = load_workflow(Path("workflow_certif.yaml"))
     assert isinstance(cfg, dict)
-    assert len(cfg.get("steps", [])) == 5
+    assert len(cfg.get("steps", [])) == 7

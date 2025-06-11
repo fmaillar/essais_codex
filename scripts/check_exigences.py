@@ -1,15 +1,8 @@
-"""Correspond à l'étape `step1_check_exigences` définie dans `workflow_certif.yaml`.
+"""Vérifie la complétude des exigences applicables.
 
-Description YAML :
-  - id: step1_check_exigences
-  - description: Vérifie les exigences applicables et leur justification.
-  - input: data/exigences.xlsx
-  - output: audit/exigences_incompletes.csv
-
-Instructions Codex :
-→ Implémenter cette logique dans ce fichier.
-→ Utiliser du code clair, modulaire, robuste (pandas, pathlib, logging, etc.).
-→ Voir aussi `README.md` et `AGENTS.md` pour le contexte global.
+Ce script correspond à l'étape ``check_exigences`` du ``workflow_certif.yaml``.
+Il lit ``data/exigences.xlsx`` et exporte les lignes non conformes dans
+``audit/exigences_incompletes.csv``.
 """
 
 from __future__ import annotations
@@ -27,6 +20,7 @@ DATA_FILE = Path("data/exigences.xlsx")
 
 def setup_logger() -> None:
     """Configure logging to file."""
+    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         filename=LOG_FILE,
         level=logging.INFO,
@@ -56,8 +50,11 @@ def main() -> None:
         sys.exit(1)
 
     if not invalid_rows.empty:
+        AUDIT_FILE.parent.mkdir(parents=True, exist_ok=True)
         invalid_rows.to_csv(AUDIT_FILE, index=False)
-        logging.warning("Exigences non conformes detectees: %d", len(invalid_rows))
+        logging.warning(
+            "Exigences non conformes detectees: %d", len(invalid_rows)
+        )
         sys.exit(1)
 
     logging.info("Aucune anomalie detectee")

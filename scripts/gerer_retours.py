@@ -15,6 +15,7 @@ DATA_FILE = Path("data/retours.xlsx")
 
 def setup_logger() -> None:
     """Configure logging."""
+    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         filename=LOG_FILE,
         level=logging.INFO,
@@ -44,6 +45,7 @@ def main() -> None:
         sys.exit(1)
 
     if not critiques.empty:
+        AUDIT_FILE.parent.mkdir(parents=True, exist_ok=True)
         critiques.to_csv(AUDIT_FILE, index=False)
         logging.warning("Retours critiques identifies: %d", len(critiques))
         sys.exit(1)
