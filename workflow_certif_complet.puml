@@ -1,0 +1,104 @@
+' ==================================================================
+' 1. ACTIVITY DIAGRAM – Workflow global avec garde-fous
+' ==================================================================
+@startuml Activity_Workflow_Certification
+title 🛠️ Workflow de Certification Industrialisé – Diagramme d'activités
+
+start
+
+:Chargement du fichier pivot (.csv ou .xlsx);
+:Étape 1 – Identification des exigences;
+if (ID et Applicabilité valides ?) then (Oui)
+  :Validation auto OK;
+else
+  :Blocage – Correction requise;
+  stop
+endif
+
+:Étape 2 – Allocation des exigences (TXE);
+:Étape 3 – Définition des MOP (XE);
+
+:Étape 4 – Vérification des preuves;
+if (Fichiers manquants ?) then (Oui)
+  :Erreur bloquante;
+  stop
+endif
+
+:Étape 5 – Vérification traçabilité + statut;
+if (Champs vides ?) then (Oui)
+  :Blocage;
+  stop
+endif
+
+:Revue 1er regard;
+:Revue 2nd regard;
+
+:Feu vert CAM;
+
+:Étape 6 – Génération de la matrice Excel;
+:Soumission au NoBo / DeBo;
+:Traitement des retours évaluateurs;
+:Analyse d'impact si modification;
+:Constitution du dossier d'AMM;
+
+stop
+@enduml
+
+' ==================================================================
+' 2. USE CASE DIAGRAM – Rôles et responsabilités
+' ==================================================================
+@startuml UseCase_Workflow_Certification
+title 👥 Rôles et Cas d’Utilisation – Certification
+
+actor CAM
+actor XE
+actor TXE
+actor Script
+actor Evaluateur as "NoBo / DeBo"
+
+rectangle "Système Certification" {
+  CAM --> (Valider périmètre des exigences)
+  CAM --> (Autoriser soumission)
+  CAM --> (Constituer le dossier AMM)
+
+  TXE --> (Allouer les exigences)
+  XE --> (Définir les MOP)
+  XE --> (Fournir les preuves)
+
+  Script --> (Vérifier les preuves)
+  Script --> (Vérifier la traçabilité)
+  Script --> (Bloquer en cas de non-conformité)
+
+  Evaluateur --> (Envoyer commentaires)
+}
+@enduml
+
+' ==================================================================
+' 3. SEQUENCE DIAGRAM – Cas nominal de traitement d’une exigence
+' ==================================================================
+@startuml Sequence_Certification_Flow
+title ⏱️ Traitement d'une exigence – Diagramme de séquence
+
+participant CAM
+participant TXE
+participant XE
+participant Script
+participant NoBo as "Évaluateur"
+
+CAM -> TXE : Identification + allocation exigence
+TXE -> XE : Transfert de l’exigence
+XE -> Script : Demande vérification MOP
+Script -> XE : OK / erreurs
+XE -> Script : Fourniture de preuve
+Script -> Script : Vérifie preuve, statut, traçabilité
+alt Erreur détectée
+  Script --> XE : Blocage + rapport
+  XE --> CAM : Alerte / Correction
+else Données valides
+  Script -> CAM : Validation possible
+  CAM -> NoBo : Soumission preuve
+  NoBo -> CAM : Retour commentaire
+  CAM -> XE : Traitement retour
+end
+
+@enduml
