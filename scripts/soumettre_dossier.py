@@ -13,7 +13,13 @@ DATA_DIR = Path("data")
 
 
 def setup_logger() -> None:
-    """Configure logging."""
+    """Configure file-based logging.
+
+    Returns
+    -------
+    None
+        The logger is configured for this module.
+    """
     LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         filename=LOG_FILE,
@@ -23,7 +29,13 @@ def setup_logger() -> None:
 
 
 def main() -> None:
-    """Create an archive of the data directory."""
+    """Create an archive of the data directory.
+
+    Returns
+    -------
+    None
+        Exits with ``0`` on success, ``1`` if an error occurred.
+    """
     setup_logger()
 
     if not DATA_DIR.exists():

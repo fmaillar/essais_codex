@@ -1,17 +1,4 @@
-"""
-Correspond à l'étape `step3_generate_matrix` définie dans `workflow_certif.yaml`.
-
-Description YAML :
-  - id: step3_generate_matrix
-  - description: Génère une matrice consolidée avec l’ensemble des exigences, justifications et preuves.
-  - input: data/exigences.xlsx
-  - output: out/matrice_certif.xlsx
-
-Instructions Codex :
-→ Implémenter cette logique dans ce fichier.
-→ Utiliser du code clair, modulaire, robuste (pandas, pathlib, logging, etc.).
-→ Voir aussi `README.md` et `AGENTS.md` pour le contexte global.
-"""
+"""Generate the consolidated certification matrix."""
 
 from __future__ import annotations
 
@@ -27,7 +14,13 @@ EVIDENCE_FILE = Path("data/preuves.xlsx")
 
 
 def setup_logger() -> None:
-    """Configure logging to file."""
+    """Configure file-based logging.
+
+    Returns
+    -------
+    None
+        The logger is configured for this module.
+    """
     LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         filename=LOG_FILE,
@@ -46,7 +39,7 @@ def generate_matrix(filepath: Path) -> pd.DataFrame:
 
     Returns
     -------
-    pd.DataFrame
+    pandas.DataFrame
         Filtered DataFrame containing only valid entries.
     """
     df = pd.read_excel(filepath, engine="openpyxl")
@@ -63,7 +56,13 @@ def generate_matrix(filepath: Path) -> pd.DataFrame:
 
 
 def main() -> None:
-    """Generate the final matrix and export it to ``OUTPUT_FILE``."""
+    """Generate the final matrix and export it.
+
+    Returns
+    -------
+    None
+        Exits with ``0`` on success, ``1`` on failure.
+    """
     setup_logger()
 
     if not EVIDENCE_FILE.exists():

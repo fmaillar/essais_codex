@@ -1,4 +1,4 @@
-"""Process evaluator feedback and log issues."""
+"""Process evaluator feedback and log critical issues."""
 
 from __future__ import annotations
 
@@ -15,7 +15,13 @@ DATA_FILE = Path("data/retours.xlsx")
 
 
 def setup_logger() -> None:
-    """Configure logging."""
+    """Configure file-based logging.
+
+    Returns
+    -------
+    None
+        The logger is configured for this module.
+    """
     LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         filename=LOG_FILE,
@@ -25,14 +31,36 @@ def setup_logger() -> None:
 
 
 def extract_critiques(filepath: Path) -> pd.DataFrame:
-    """Return critical feedback lines."""
+    """Return critical feedback lines.
+
+    Parameters
+    ----------
+    filepath : Path
+        Path to the Excel file with evaluator feedback.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame containing only lines flagged as critical.
+    """
     df = pd.read_excel(filepath, engine="openpyxl")
     mask = df.get("Criticité", "").str.lower() == "elevee"
     return df.loc[mask]
 
 
 def update_traitement(filepath: Path) -> pd.DataFrame:
-    """Update feedback file with a ``Traité`` column and return summary."""
+    """Update feedback file with a ``Traité`` column and return summary.
+
+    Parameters
+    ----------
+    filepath : Path
+        Path to the Excel file with evaluator feedback.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Counts of treated vs non-treated comments.
+    """
     df = pd.read_excel(filepath, engine="openpyxl")
 
     comment_col = df.filter(regex="(?i)comment").columns[0]
@@ -46,7 +74,13 @@ def update_traitement(filepath: Path) -> pd.DataFrame:
 
 
 def main() -> None:
-    """Entry point."""
+    """Process feedback and export audit files.
+
+    Returns
+    -------
+    None
+        Exits with status ``0`` or ``1`` depending on the feedback severity.
+    """
     setup_logger()
 
     if not DATA_FILE.exists():

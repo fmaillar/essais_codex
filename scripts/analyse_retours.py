@@ -14,7 +14,13 @@ DATA_FILE = Path("data/retours.xlsx")
 
 
 def setup_logger() -> None:
-    """Configure file based logging."""
+    """Configure file-based logging.
+
+    Returns
+    -------
+    None
+        The logger is configured for this module.
+    """
     LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         filename=LOG_FILE,
@@ -33,7 +39,7 @@ def compute_impact(filepath: Path) -> pd.DataFrame:
 
     Returns
     -------
-    pd.DataFrame
+    pandas.DataFrame
         DataFrame with columns ``Criticite``, ``Occurrences`` and ``Poids`` with
         a final row ``Score global``.
     """
@@ -54,7 +60,13 @@ def compute_impact(filepath: Path) -> pd.DataFrame:
 
 
 def main() -> None:
-    """Analyse feedback and export an impact report."""
+    """Analyse feedback and export an impact report.
+
+    Returns
+    -------
+    None
+        Exits with status ``0`` on success, ``1`` otherwise.
+    """
     setup_logger()
 
     if not DATA_FILE.exists():

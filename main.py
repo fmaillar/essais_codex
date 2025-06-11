@@ -10,7 +10,18 @@ import yaml
 
 
 def load_workflow(yaml_path: Path) -> dict:
-    """Load YAML configuration for the workflow."""
+    """Load YAML configuration for the workflow.
+
+    Parameters
+    ----------
+    yaml_path : Path
+        Path to the workflow configuration file.
+
+    Returns
+    -------
+    dict
+        Parsed YAML configuration.
+    """
     with yaml_path.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
@@ -42,7 +53,18 @@ def run_step(step: dict) -> int:
 
 
 def main(yaml_path: str) -> None:
-    """Run workflow steps sequentially."""
+    """Run workflow steps sequentially.
+
+    Parameters
+    ----------
+    yaml_path : str
+        Path to the workflow configuration YAML file.
+
+    Returns
+    -------
+    None
+        Exits with status code of the last executed step.
+    """
     config = load_workflow(Path(yaml_path))
     steps = config.get("steps", [])
 

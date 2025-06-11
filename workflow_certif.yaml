@@ -6,22 +6,55 @@ steps:
   - id: check_exigences
     script: scripts/check_exigences.py
     description: Vérifie les exigences documentaires selon leur statut d’applicabilité
+    preconditions:
+      - data/exigences.xlsx
+    outputs:
+      - audit/exigences_incompletes.csv
+    criticality: high
+    owner: Responsable certification
 
   - id: check_mop
     script: scripts/check_mop.py
     description: Analyse les MOP (Moyens de preuve) déclarés
+    preconditions:
+      - data/mop.xlsx
+    outputs:
+      - audit/mop_manquants.csv
+    criticality: high
+    owner: Responsable certification
 
   - id: check_preuves
     script: scripts/check_preuves.py
     description: Vérifie les preuves de conception et de test pour chaque exigence applicable
+    preconditions:
+      - data/preuves.xlsx
+      - data/exigences.xlsx
+    outputs:
+      - audit/preuves_manquantes.csv
+      - audit/exigences_sans_preuves.csv
+    criticality: high
+    owner: Responsable certification
 
   - id: soumettre_dossier
     script: scripts/soumettre_dossier.py
     description: Prépare et assemble les livrables de certification en vue de la soumission
+    preconditions:
+      - data/
+    outputs:
+      - audit/dossier_soumission.zip
+    criticality: medium
+    owner: Responsable certification
 
   - id: gerer_retours
     script: scripts/gerer_retours.py
     description: Intègre les retours des évaluateurs et trace les échanges
+    preconditions:
+      - data/retours.xlsx
+    outputs:
+      - audit/retours_critiques.csv
+      - audit/retours_traite_nontraite.csv
+    criticality: medium
+    owner: Responsable certification
 
 log_folder: logs
 audit_folder: audit
