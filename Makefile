@@ -1,6 +1,11 @@
-.PHONY: all check_exigences check_mop check_preuves soumettre_dossier gerer_retours analyse_impact_retours synthese_retours
+.PHONY: all prepare_dirs check_exigences check_mop check_preuves \
+        soumettre_dossier gerer_retours analyse_impact_retours synthese_retours \
+        run lint test doc
 
-all: check_exigences check_mop check_preuves soumettre_dossier gerer_retours analyse_impact_retours synthese_retours
+all: prepare_dirs check_exigences check_mop check_preuves soumettre_dossier gerer_retours analyse_impact_retours synthese_retours
+
+prepare_dirs:
+	mkdir -p logs audit
 
 check_exigences:
 	@echo "=== Vérification des exigences ==="
@@ -29,3 +34,15 @@ analyse_impact_retours:
 synthese_retours:
 	@echo "=== Synthèse des retours par exigence ==="
 	python scripts/synthese_retours.py >> logs/synthese_retours.log 2>&1 || exit 1
+
+run:
+	python main.py
+
+lint:
+	ruff check .
+
+test:
+	pytest -q
+
+doc:
+	pdoc --html --output-dir docs main.py scripts

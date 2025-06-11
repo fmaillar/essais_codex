@@ -15,6 +15,7 @@ DATA_FILE = Path("data/retours.xlsx")
 
 def setup_logger() -> None:
     """Configure file based logging."""
+    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         filename=LOG_FILE,
         level=logging.INFO,

@@ -14,6 +14,7 @@ DATA_DIR = Path("data")
 
 def setup_logger() -> None:
     """Configure logging."""
+    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         filename=LOG_FILE,
         level=logging.INFO,
@@ -30,6 +31,7 @@ def main() -> None:
         sys.exit(1)
 
     try:
+        OUTPUT_ARCHIVE.parent.mkdir(parents=True, exist_ok=True)
         if OUTPUT_ARCHIVE.exists():
             OUTPUT_ARCHIVE.unlink()
         shutil.make_archive(OUTPUT_ARCHIVE.with_suffix(""), "zip", DATA_DIR)

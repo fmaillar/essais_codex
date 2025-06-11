@@ -28,6 +28,7 @@ EVIDENCE_FILE = Path("data/preuves.xlsx")
 
 def setup_logger() -> None:
     """Configure logging to file."""
+    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         filename=LOG_FILE,
         level=logging.INFO,
