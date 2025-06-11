@@ -13,6 +13,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from .utils import DEFAULT_SHEETS, find_column, read_first_sheet
+
 LOG_FILE = Path("logs/check_exigences.log")
 AUDIT_FILE = Path("audit/exigences_incompletes.csv")
 DATA_FILE = Path("data/exigences.xlsx")
@@ -48,10 +50,25 @@ def verify_exigences(filepath: Path) -> pd.DataFrame:
         DataFrame of rows where applicability is ``Oui`` and justification is
         missing.
     """
-    df = pd.read_excel(filepath, engine="openpyxl")
+    df = read_first_sheet(filepath, DEFAULT_SHEETS)
+
+    try:
+        applicability_col = find_column(
+            df,
+            [r"^Applicabilit[ée]$", r"^Applicability$"],
+            [r"applicab"],
+        )
+        justification_col = find_column(
+            df,
+            [r"Justification\s+non-applicabilit[ée]"],
+            [r"justification"],
+        )
+    except KeyError as exc:
+        raise KeyError(f"Colonnes manquantes: {exc}") from exc
+
     mask = (
-        df.get("Applicability") == "Oui"
-    ) & (df.get("Justification non-applicabilité").isna())
+        df[applicability_col].str.lower() == "oui"
+    ) & df[justification_col].isna()
     return df.loc[mask]
 
 
@@ -69,8 +86,12 @@ def main() -> None:
         logging.error("Fichier %s introuvable", DATA_FILE)
         sys.exit(1)
 
+    logging.info("Lecture du fichier: %s", DATA_FILE)
     try:
         invalid_rows = verify_exigences(DATA_FILE)
+    except KeyError as exc:
+        logging.error("%s", exc)
+        sys.exit(1)
     except Exception as exc:  # fallback for unexpected format
         logging.exception("Erreur lors de la lecture du fichier: %s", exc)
         sys.exit(1)

@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from .utils import DEFAULT_SHEETS, find_column, read_first_sheet
+
 LOG_FILE = Path("logs/analyse_retours.log")
 REPORT_FILE = Path("audit/impact_retours.csv")
 DATA_FILE = Path("data/retours.xlsx")
@@ -43,9 +45,9 @@ def compute_impact(filepath: Path) -> pd.DataFrame:
         DataFrame with columns ``Criticite``, ``Occurrences`` and ``Poids`` with
         a final row ``Score global``.
     """
-    df = pd.read_excel(filepath, engine="openpyxl")
+    df = read_first_sheet(filepath, DEFAULT_SHEETS)
 
-    criticity_col = df.filter(regex="(?i)critic").columns[0]
+    criticity_col = find_column(df, [r"^Criticité$"], [r"critic"])
     mapping = {"haute": 3, "moyenne": 2, "basse": 1}
 
     counts = (
@@ -73,8 +75,12 @@ def main() -> None:
         logging.error("Fichier %s introuvable", DATA_FILE)
         sys.exit(1)
 
+    logging.info("Lecture du fichier: %s", DATA_FILE)
     try:
         report = compute_impact(DATA_FILE)
+    except KeyError as exc:
+        logging.error("%s", exc)
+        sys.exit(1)
     except Exception as exc:  # fallback for unexpected format
         logging.exception("Erreur lors de l'analyse des retours: %s", exc)
         sys.exit(1)

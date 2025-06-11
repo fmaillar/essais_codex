@@ -42,7 +42,7 @@ lint:
 	ruff check .
 
 test:
-       pytest -q
+	pytest -q
 
 test_all: test
 

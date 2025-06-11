@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from .utils import DEFAULT_SHEETS, find_column, read_first_sheet
+
 LOG_FILE = Path("logs/gerer_retours.log")
 AUDIT_FILE = Path("audit/retours_critiques.csv")
 SUMMARY_FILE = Path("audit/retours_traite_nontraite.csv")
@@ -43,8 +45,10 @@ def extract_critiques(filepath: Path) -> pd.DataFrame:
     pandas.DataFrame
         DataFrame containing only lines flagged as critical.
     """
-    df = pd.read_excel(filepath, engine="openpyxl")
-    mask = df.get("Criticité", "").str.lower() == "elevee"
+    df = read_first_sheet(filepath, DEFAULT_SHEETS)
+
+    crit_col = find_column(df, [r"^Criticité$"], [r"critic"])
+    mask = df[crit_col].str.lower().isin(["elevee", "élevée", "haute"])
     return df.loc[mask]
 
 
@@ -61,9 +65,9 @@ def update_traitement(filepath: Path) -> pd.DataFrame:
     pandas.DataFrame
         Counts of treated vs non-treated comments.
     """
-    df = pd.read_excel(filepath, engine="openpyxl")
+    df = read_first_sheet(filepath, DEFAULT_SHEETS)
 
-    comment_col = df.filter(regex="(?i)comment").columns[0]
+    comment_col = find_column(df, [r"^Commentaire$"], [r"comment"]) 
     keywords = r"(résolu|corrigé|pris en compte)"
 
     df["Traité"] = df[comment_col].str.contains(keywords, case=False, na=False)
@@ -87,9 +91,13 @@ def main() -> None:
         logging.error("Fichier %s introuvable", DATA_FILE)
         sys.exit(1)
 
+    logging.info("Lecture du fichier: %s", DATA_FILE)
     try:
         critiques = extract_critiques(DATA_FILE)
         summary = update_traitement(DATA_FILE)
+    except KeyError as exc:
+        logging.error("%s", exc)
+        sys.exit(1)
     except Exception as exc:
         logging.exception("Erreur de lecture des retours: %s", exc)
         sys.exit(1)
