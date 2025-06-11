@@ -1,4 +1,16 @@
-"""Check requirements applicability and justification."""
+"""Correspond à l'étape `step1_check_exigences` définie dans `workflow_certif.yaml`.
+
+Description YAML :
+  - id: step1_check_exigences
+  - description: Vérifie les exigences applicables et leur justification.
+  - input: data/exigences.xlsx
+  - output: audit/exigences_incompletes.csv
+
+Instructions Codex :
+→ Implémenter cette logique dans ce fichier.
+→ Utiliser du code clair, modulaire, robuste (pandas, pathlib, logging, etc.).
+→ Voir aussi `README.md` et `AGENTS.md` pour le contexte global.
+"""
 
 from __future__ import annotations
 
