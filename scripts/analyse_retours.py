@@ -24,7 +24,7 @@ def setup_logger() -> None:
 
 
 def compute_impact(filepath: Path) -> pd.DataFrame:
-    """Return feedback impact summary grouped by criticity level.
+    """Return weighted impact summary from evaluator feedback.
 
     Parameters
     ----------
@@ -34,15 +34,23 @@ def compute_impact(filepath: Path) -> pd.DataFrame:
     Returns
     -------
     pd.DataFrame
-        DataFrame with columns ``Criticite`` and ``Occurrences``.
+        DataFrame with columns ``Criticite``, ``Occurrences`` and ``Poids`` with
+        a final row ``Score global``.
     """
     df = pd.read_excel(filepath, engine="openpyxl")
 
     criticity_col = df.filter(regex="(?i)critic").columns[0]
+    mapping = {"haute": 3, "moyenne": 2, "basse": 1}
+
     counts = (
         df[criticity_col].str.lower().value_counts().rename_axis("Criticite")
     )
-    return counts.rename("Occurrences").reset_index()
+    summary = counts.rename("Occurrences").reset_index()
+    summary["Poids"] = summary["Criticite"].str.lower().map(mapping).fillna(0).astype(int)
+
+    global_score = int(df[criticity_col].str.lower().map(mapping).fillna(0).sum())
+    summary.loc[len(summary)] = ["Score global", global_score, ""]
+    return summary
 
 
 def main() -> None:

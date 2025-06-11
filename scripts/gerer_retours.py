@@ -10,6 +10,7 @@ import pandas as pd
 
 LOG_FILE = Path("logs/gerer_retours.log")
 AUDIT_FILE = Path("audit/retours_critiques.csv")
+SUMMARY_FILE = Path("audit/retours_traite_nontraite.csv")
 DATA_FILE = Path("data/retours.xlsx")
 
 
@@ -30,6 +31,20 @@ def extract_critiques(filepath: Path) -> pd.DataFrame:
     return df.loc[mask]
 
 
+def update_traitement(filepath: Path) -> pd.DataFrame:
+    """Update feedback file with a ``Traité`` column and return summary."""
+    df = pd.read_excel(filepath, engine="openpyxl")
+
+    comment_col = df.filter(regex="(?i)comment").columns[0]
+    keywords = r"(résolu|corrigé|pris en compte)"
+
+    df["Traité"] = df[comment_col].str.contains(keywords, case=False, na=False)
+    df["Traité"] = df["Traité"].map({True: "Oui", False: "Non"})
+
+    df.to_excel(filepath, index=False, engine="openpyxl")
+    return df["Traité"].value_counts().rename_axis("Traite").reset_index(name="Occurrences")
+
+
 def main() -> None:
     """Entry point."""
     setup_logger()
@@ -40,9 +55,13 @@ def main() -> None:
 
     try:
         critiques = extract_critiques(DATA_FILE)
+        summary = update_traitement(DATA_FILE)
     except Exception as exc:
         logging.exception("Erreur de lecture des retours: %s", exc)
         sys.exit(1)
+
+    SUMMARY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    summary.to_csv(SUMMARY_FILE, index=False)
 
     if not critiques.empty:
         AUDIT_FILE.parent.mkdir(parents=True, exist_ok=True)
