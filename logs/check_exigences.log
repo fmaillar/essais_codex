@@ -1,0 +1,17 @@
+2025-06-11 21:18:26,409 - ERROR - Fichier data/exigences.xlsx introuvable
+2025-06-11 21:19:57,307 - ERROR - Erreur lors de la lecture du fichier: 'NoneType' object has no attribute 'isna'
+Traceback (most recent call last):
+  File "/mnt/data/essais_codex_codex_output/essais_codex-main/scripts/check_exigences.py", line 47, in main
+    invalid_rows = verify_exigences(DATA_FILE)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/essais_codex_codex_output/essais_codex-main/scripts/check_exigences.py", line 34, in verify_exigences
+    mask = (df.get("Applicability") == "Oui") & (df.get("Justification non-applicabilité").isna())
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'isna'
+2025-06-11 21:20:50,330 - INFO - Aucune anomalie detectee
+2025-06-11 21:21:07,179 - INFO - Aucune anomalie detectee
+2025-06-11 21:21:23,759 - INFO - Aucune anomalie detectee
+2025-06-11 21:21:45,235 - INFO - Aucune anomalie detectee
+2025-06-11 21:22:05,967 - INFO - Aucune anomalie detectee
+2025-06-11 21:23:06,327 - INFO - Aucune anomalie detectee
+2025-06-11 21:23:34,475 - INFO - Aucune anomalie detectee

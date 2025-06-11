@@ -1,0 +1,15 @@
+2025-06-11 21:20:52,092 - ERROR - Fichier data/mop.xlsx introuvable
+2025-06-11 21:21:09,267 - ERROR - Erreur lors de la lecture du fichier: 'NoneType' object has no attribute 'isna'
+Traceback (most recent call last):
+  File "/mnt/data/essais_codex_codex_output/essais_codex-main/scripts/check_mop.py", line 42, in main
+    invalid_rows = check_mop(DATA_FILE)
+                   ^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/essais_codex_codex_output/essais_codex-main/scripts/check_mop.py", line 29, in check_mop
+    mask = (df.get("Applicability") == "Oui") & (df.get("MOP").isna())
+                                                 ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'isna'
+2025-06-11 21:21:26,477 - INFO - Tous les MOP sont renseignes
+2025-06-11 21:21:47,444 - INFO - Tous les MOP sont renseignes
+2025-06-11 21:22:08,402 - INFO - Tous les MOP sont renseignes
+2025-06-11 21:23:08,712 - INFO - Tous les MOP sont renseignes
+2025-06-11 21:23:37,275 - INFO - Tous les MOP sont renseignes

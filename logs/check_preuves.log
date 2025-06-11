@@ -1,0 +1,13 @@
+2025-06-11 21:21:28,316 - ERROR - Fichier data/preuves.xlsx introuvable
+2025-06-11 21:21:49,906 - ERROR - Erreur lors de la lecture du fichier: 'NoneType' object has no attribute 'isna'
+Traceback (most recent call last):
+  File "/mnt/data/essais_codex_codex_output/essais_codex-main/scripts/check_preuves.py", line 57, in main
+    invalid_rows = check_preuves(DATA_FILE)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/data/essais_codex_codex_output/essais_codex-main/scripts/check_preuves.py", line 43, in check_preuves
+    & (df.get("Preuve_conception").isna() | df.get("Preuve_test").isna())
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'isna'
+2025-06-11 21:22:10,576 - INFO - Toutes les preuves sont presentes
+2025-06-11 21:23:10,890 - INFO - Toutes les preuves sont presentes
+2025-06-11 21:23:39,966 - INFO - Toutes les preuves sont presentes

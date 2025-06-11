@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/mnt/data/essais_codex_codex_output/essais_codex-main/scripts/synthese_retours.py", line 41, in <module>
+    synthese_retours(Path("data/retours.xlsx"), Path("audit/synthese_retours.xlsx"))
+  File "/mnt/data/essais_codex_codex_output/essais_codex-main/scripts/synthese_retours.py", line 26, in synthese_retours
+    raise ValueError(f"Colonnes attendues manquantes dans le fichier : {required_cols}")
+ValueError: Colonnes attendues manquantes dans le fichier : {'Commentaire', 'Criticité', 'Exigence'}
