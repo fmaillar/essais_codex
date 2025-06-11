@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+logs/
+audit/
+*.xlsx
+mon_projet_codex/

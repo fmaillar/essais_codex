@@ -1,52 +1,64 @@
-"""
-main.py – Orchestrateur du workflow de certification
-Lit le fichier YAML, exécute les étapes et gère les erreurs, validations et logs.
-"""
+"""Main orchestrator for the certification workflow."""
 
-import yaml
+from __future__ import annotations
+
 import subprocess
 import sys
 from pathlib import Path
 
-def load_workflow(yaml_path):
-    with open(yaml_path, 'r', encoding='utf-8') as f:
+import yaml
+
+
+def load_workflow(yaml_path: Path) -> dict:
+    """Load YAML configuration for the workflow."""
+    with yaml_path.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
-def run_step(step):
+
+def run_step(step: dict) -> int:
+    """Execute a workflow step via its Python script.
+
+    Parameters
+    ----------
+    step : dict
+        Step configuration containing the script path and identifier.
+
+    Returns
+    -------
+    int
+        Return code from the executed script.
+    """
+    script = step.get("script")
+    if not script:
+        print(f"⚠️  Aucun script défini pour l'étape {step['id']}")
+        return 0
+
     print(f"🔧 Étape : {step['id']}")
-    if 'script' in step:
-        result = subprocess.run(["python", step['script']], capture_output=True, text=True)
-        print(result.stdout)
-        if result.returncode != 0:
-            print(f"❌ Erreur dans {step['script']}")
-            if step.get('on_error', 'stop') == 'stop':
-                sys.exit(1)
-            elif step['on_error'] == 'warn':
-                print("⚠️  Avertissement : erreur ignorée")
-            else:
-                print("➡️  Continuation malgré l'erreur")
-    else:
-        print("⚠️  Aucun script défini pour cette étape")
+    result = subprocess.run([sys.executable, script], capture_output=True, text=True)
+    print(result.stdout)
+    if result.stderr:
+        print(result.stderr)
+    return result.returncode
 
-    if step.get('requires_validation', False):
-        input("⏸️  Validation requise. Appuyez sur Entrée pour continuer...")
 
-def main(yaml_path, phase=None):
-    workflow_data = load_workflow(yaml_path)
-    metadata = workflow_data.get('metadata', {})
-    print(f"📋 Workflow de certification – Projet : {metadata.get('projet', 'N/A')} – Version : {metadata.get('version_sti', 'N/A')}")
+def main(yaml_path: str) -> None:
+    """Run workflow steps sequentially."""
+    config = load_workflow(Path(yaml_path))
+    steps = config.get("steps", [])
 
-    for step in workflow_data['workflow']:
-        if phase and step['id'] != phase:
-            continue
-        run_step(step)
-        if phase:
-            break
+    for step in steps:
+        rc = run_step(step)
+        if rc != 0:
+            print(f"❌ Étape échouée: {step['id']}")
+            sys.exit(rc)
+
+    print("✅ Workflow terminé avec succès")
+
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--yaml", required=True, help="Chemin du fichier workflow YAML")
-    parser.add_argument("--phase", help="Nom d'une étape à exécuter uniquement")
+
+    parser = argparse.ArgumentParser(description="Run certification workflow")
+    parser.add_argument("--yaml", default="workflow_certif.yaml", help="Path to configuration YAML")
     args = parser.parse_args()
-    main(args.yaml, args.phase)
+    main(args.yaml)
