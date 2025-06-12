@@ -1,86 +1,83 @@
-"""Main orchestrator for the certification workflow."""
+"""Command-line interface for the certification workflow."""
 
 from __future__ import annotations
 
-import subprocess
-import sys
+import argparse
 from pathlib import Path
+import subprocess
 
+from workflow import CertificationDossier, WorkflowCertifEngine
 import yaml
 
 
 def load_workflow(yaml_path: Path) -> dict:
-    """Load YAML configuration for the workflow.
-
-    Parameters
-    ----------
-    yaml_path : Path
-        Path to the workflow configuration file.
-
-    Returns
-    -------
-    dict
-        Parsed YAML configuration.
-    """
-    with yaml_path.open("r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    """Return the parsed YAML configuration."""
+    with yaml_path.open("r", encoding="utf-8") as fh:
+        return yaml.safe_load(fh)
 
 
 def run_step(step: dict) -> int:
-    """Execute a workflow step via its Python script.
-
-    Parameters
-    ----------
-    step : dict
-        Step configuration containing the script path and identifier.
-
-    Returns
-    -------
-    int
-        Return code from the executed script.
-    """
+    """Execute a Python script defined in ``step``."""
     script = step.get("script")
     if not script:
-        print(f"⚠️  Aucun script défini pour l'étape {step['id']}")
         return 0
-
-    print(f"🔧 Étape : {step['id']}")
-    result = subprocess.run([sys.executable, script], capture_output=True, text=True)
-    print(result.stdout)
-    if result.stderr:
-        print(result.stderr)
+    result = subprocess.run(["python", script])
     return result.returncode
 
 
-def main(yaml_path: str) -> None:
-    """Run workflow steps sequentially.
+def run_pipeline(cfg: Path, dossier_id: str, dossier_path: Path) -> None:
+    """Run the workflow sequentially based on ``cfg``."""
+    engine = WorkflowCertifEngine()
+    engine.charger_workflow(cfg)
+    dossier = CertificationDossier(dossier_id, dossier_path)
+    engine.lancer(dossier)
 
-    Parameters
-    ----------
-    yaml_path : str
-        Path to the workflow configuration YAML file.
 
-    Returns
-    -------
-    None
-        Exits with status code of the last executed step.
-    """
-    config = load_workflow(Path(yaml_path))
+def run_objectif(
+    name: str, cfg: Path, objectifs_file: Path, dossier_id: str, dossier_path: Path
+) -> None:
+    """Run steps adaptively to reach ``name`` objective."""
+    engine = WorkflowCertifEngine()
+    engine.charger_workflow(cfg)
+    engine.charger_objectifs(objectifs_file)
+    dossier = CertificationDossier(dossier_id, dossier_path)
+    engine.atteindre_objectif(name, dossier)
+
+
+def run_main(yaml_file: str) -> None:
+    """Backward-compatible entry point used in tests."""
+    config = load_workflow(Path(yaml_file))
     steps = config.get("steps", [])
-
     for step in steps:
         rc = run_step(step)
         if rc != 0:
-            print(f"❌ Étape échouée: {step['id']}")
-            sys.exit(rc)
+            raise SystemExit(rc)
 
-    print("✅ Workflow terminé avec succès")
+
+def main() -> None:
+    """Entry point for the CLI."""
+    parser = argparse.ArgumentParser(description="Certification workflow")
+    sub = parser.add_subparsers(dest="mode", required=True)
+
+    p_pipeline = sub.add_parser("pipeline", help="Run pipeline from YAML")
+    p_pipeline.add_argument("--yaml", default="workflow_certif.yaml")
+    p_pipeline.add_argument("--dossier", default="CAF001")
+    p_pipeline.add_argument("--chemin", default="data")
+
+    p_obj = sub.add_parser("objectif", help="Run workflow to reach an objective")
+    p_obj.add_argument("name")
+    p_obj.add_argument("--yaml", default="workflow_certif.yaml")
+    p_obj.add_argument("--objectifs", default="objectifs.yaml")
+    p_obj.add_argument("--dossier", default="CAF001")
+    p_obj.add_argument("--chemin", default="data")
+
+    args = parser.parse_args()
+    chemin = Path(args.chemin)
+    if args.mode == "pipeline":
+        run_pipeline(Path(args.yaml), args.dossier, chemin)
+    else:
+        run_objectif(args.name, Path(args.yaml), Path(args.objectifs), args.dossier, chemin)
 
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Run certification workflow")
-    parser.add_argument("--yaml", default="workflow_certif.yaml", help="Path to configuration YAML")
-    args = parser.parse_args()
-    main(args.yaml)
+    main()

@@ -4,10 +4,9 @@ import sys
 import pandas as pd
 
 ROOT = os.path.dirname(os.path.dirname(__file__))
-sys.path.append(os.path.join(ROOT, "src"))
 sys.path.append(ROOT)
 
-from workflow_certif import CertificationDossier, RapportImpact
+from workflow import CertificationDossier, RapportImpact
 
 
 def test_certification_dossier(tmp_path: Path) -> None:

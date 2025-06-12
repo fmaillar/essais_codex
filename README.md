@@ -1,8 +1,8 @@
 # Workflow Certification CAF
 
 This project automates document certification steps defined in `workflow_certif.yaml`.
-The code exposes an object-oriented engine located in `workflow_certif/`.
-Each YAML step is mapped to a class deriving from `EtapeWorkflow`.
+The code exposes an object-oriented engine located in `workflow/`.
+Each YAML step is mapped to a class deriving from `EtapeWorkflow` and can be chained dynamically.
 
 ## Requirements
 - Python 3.10+
@@ -18,10 +18,14 @@ Execute the full workflow:
 ```bash
 make run
 ```
+Or run a specific objective:
+```bash
+python main.py objectif Soumission_dossier_valide
+```
 The object-oriented API can be used as follows:
 ```python
 from pathlib import Path
-from workflow_certif import CertificationDossier, WorkflowCertifEngine
+from workflow import CertificationDossier, WorkflowCertifEngine
 
 dossier = CertificationDossier("CAF001", Path("data"))
 engine = WorkflowCertifEngine()

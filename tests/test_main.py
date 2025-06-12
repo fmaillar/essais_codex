@@ -12,7 +12,7 @@ import yaml
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from main import run_step, main as run_main
+from main import run_step, run_main
 
 
 def _create_script(script_path: Path, exit_code: int = 0) -> Path:

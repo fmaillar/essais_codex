@@ -3,10 +3,9 @@ import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(__file__))
-sys.path.append(os.path.join(ROOT, "src"))
 sys.path.append(ROOT)
 
-from workflow_certif import CertificationDossier, WorkflowCertifEngine
+from workflow import CertificationDossier, WorkflowCertifEngine
 
 
 def test_engine_load_and_run(tmp_path: Path) -> None:
