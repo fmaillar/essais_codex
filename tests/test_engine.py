@@ -5,7 +5,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(ROOT)
 
-from workflow import CertificationDossier, WorkflowCertifEngine
+from workflow import CertificationDossier, WorkflowCertifEngine  # noqa: E402
+
 
 
 def test_engine_load_and_run(tmp_path: Path) -> None:

@@ -22,6 +22,14 @@ Or run a specific objective:
 ```bash
 python main.py objectif Soumission_dossier_valide
 ```
+Run the full workflow while tracking objectives defined in `config/objectifs.yaml`:
+```bash
+python main.py pipeline --objectifs config/objectifs.yaml
+```
+
+Each objective lists preconditions and actions linked to workflow steps. The
+``ObjectifManager`` loads them at startup and records their status in
+`logs/objectifs.log`.
 The object-oriented API can be used as follows:
 ```python
 from pathlib import Path

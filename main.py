@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 
 from workflow import CertificationDossier, WorkflowCertifEngine
+from core import ObjectifManager
 import yaml
 
 
@@ -25,12 +26,16 @@ def run_step(step: dict) -> int:
     return result.returncode
 
 
-def run_pipeline(cfg: Path, dossier_id: str, dossier_path: Path) -> None:
-    """Run the workflow sequentially based on ``cfg``."""
+def run_pipeline(cfg: Path, obj_file: Path, dossier_id: str, dossier_path: Path) -> None:
+    """Run the workflow then evaluate objectives."""
     engine = WorkflowCertifEngine()
     engine.charger_workflow(cfg)
     dossier = CertificationDossier(dossier_id, dossier_path)
     engine.lancer(dossier)
+
+    manager = ObjectifManager(Path("logs/objectifs.log"))
+    manager.charger_yaml(obj_file)
+    manager.declencher(engine, dossier)
 
 
 def run_objectif(
@@ -39,9 +44,16 @@ def run_objectif(
     """Run steps adaptively to reach ``name`` objective."""
     engine = WorkflowCertifEngine()
     engine.charger_workflow(cfg)
-    engine.charger_objectifs(objectifs_file)
     dossier = CertificationDossier(dossier_id, dossier_path)
-    engine.atteindre_objectif(name, dossier)
+
+    manager = ObjectifManager(Path("logs/objectifs.log"))
+    manager.charger_yaml(objectifs_file)
+    obj = manager.objectifs.get(name)
+    if not obj:
+        raise ValueError(f"Objectif inconnu: {name}")
+    if obj.preconditions_ok(engine):
+        obj.executer(engine, dossier)
+    manager._logger.info("Statut %s: %s", obj.id, obj.statut)
 
 
 def run_main(yaml_file: str) -> None:
@@ -61,6 +73,7 @@ def main() -> None:
 
     p_pipeline = sub.add_parser("pipeline", help="Run pipeline from YAML")
     p_pipeline.add_argument("--yaml", default="workflow_certif.yaml")
+    p_pipeline.add_argument("--objectifs", default="config/objectifs.yaml")
     p_pipeline.add_argument("--dossier", default="CAF001")
     p_pipeline.add_argument("--chemin", default="data")
 
@@ -74,7 +87,7 @@ def main() -> None:
     args = parser.parse_args()
     chemin = Path(args.chemin)
     if args.mode == "pipeline":
-        run_pipeline(Path(args.yaml), args.dossier, chemin)
+        run_pipeline(Path(args.yaml), Path(args.objectifs), args.dossier, chemin)
     else:
         run_objectif(args.name, Path(args.yaml), Path(args.objectifs), args.dossier, chemin)
 
