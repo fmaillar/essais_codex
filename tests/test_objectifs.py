@@ -20,12 +20,12 @@ def test_objectif_manager(tmp_path: Path) -> None:
     yaml_file = tmp_path / "obj.yaml"
     yaml_file.write_text(
         """
-objectifs:
-  OBJ:
-    description: test
-    preconditions: [dummy]
-    actions: [dummy]
-    resultats_attendus: []
+- id: OBJ
+  nom: Test
+  description: test
+  preconditions: [dummy]
+  actions: [dummy]
+  criticite: basse
 """,
         encoding="utf-8",
     )
