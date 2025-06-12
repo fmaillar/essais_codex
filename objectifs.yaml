@@ -1,0 +1,13 @@
+objectif_principal: Soumission_dossier_valide
+
+objectifs:
+  Soumission_dossier_valide:
+    description: Générer et soumettre un dossier complet de certification
+    preconditions:
+      - check_mop
+      - check_exigences
+      - check_preuves
+      - soumettre_dossier
+    conditions_succès:
+      - fichier: dossiers/soumission_finale.zip
+        existe: true

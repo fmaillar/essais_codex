@@ -36,7 +36,7 @@ synthese_retours:
 	python scripts/synthese_retours.py >> logs/synthese_retours.log 2>&1 || exit 1
 
 run:
-	python main.py
+        python main.py pipeline
 
 lint:
 	ruff check .
@@ -47,4 +47,4 @@ test:
 test_all: test
 
 doc:
-	pdoc --html --output-dir docs main.py scripts
+        pdoc --html --output-dir docs main.py scripts workflow
