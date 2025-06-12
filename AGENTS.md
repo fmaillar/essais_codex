@@ -3,6 +3,8 @@
 
 Ce fichier documente les différents agents ou assistants logiques pouvant intervenir dans l’implémentation automatisée du workflow de certification CAF, tel que défini dans `workflow_certif.yaml`.
 
+Le dépôt expose désormais un moteur orienté objet dans `workflow_certif/` permettant de charger le YAML et d'exécuter les étapes sous forme de classes Python.
+
 ---
 
 ## 🔹 Agent Name: CertifFlowCodex
