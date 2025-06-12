@@ -35,3 +35,16 @@ make doc
 - `logs/` execution logs
 - `audit/` CSV audit reports
 - `data/` input files
+
+## UML of the Workflow
+
+Object-oriented class diagram for the certification pipeline:
+
+```plantuml
+@startuml
+!include ./classes_workflow_certif.puml
+@enduml
+```
+
+> To view this diagram, use [PlantUML](https://plantuml.com/), [VSCode + PlantUML extension](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml), or [Kroki](https://kroki.io).
+
