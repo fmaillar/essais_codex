@@ -1,13 +1,54 @@
-objectif_principal: Soumission_dossier_valide
-
-objectifs:
-  Soumission_dossier_valide:
-    description: Générer et soumettre un dossier complet de certification
-    preconditions:
-      - check_mop
-      - check_exigences
-      - check_preuves
-      - soumettre_dossier
-    conditions_succès:
-      - fichier: dossiers/soumission_finale.zip
-        existe: true
+- id: O1
+  nom: Vérification du MOP
+  description: Vérifier la présence et la validité du MOP dans le dossier documentaire.
+  preconditions:
+  - Dossier documentaire présent
+  actions:
+  - scripts/check_mop.py
+  output_attendu: Résultat de vérification dans outputs/check_mop_result.json
+  criticite: haute
+- id: O2
+  nom: Contrôle des preuves de conception
+  description: S'assurer que toutes les preuves de conception attendues sont disponibles.
+  preconditions:
+  - check_mop terminé
+  actions:
+  - scripts/check_preuves.py
+  output_attendu: outputs/preuves_conception_check.csv
+  criticite: moyenne
+- id: O3
+  nom: Analyse des exigences
+  description: Analyser la conformité des exigences selon les critères de certification.
+  preconditions:
+  - check_preuves terminé
+  actions:
+  - scripts/check_exigences.py
+  output_attendu: outputs/exigences_analysis.csv
+  criticite: haute
+- id: O4
+  nom: Analyse des retours
+  description: Compiler les retours des évaluateurs et générer une synthèse d'impact.
+  preconditions:
+  - exigences analysées
+  actions:
+  - scripts/analyse_retours.py
+  output_attendu: audit/impact_retours.csv
+  criticite: faible
+- id: O5
+  nom: Génération de la matrice finale
+  description: Fusionner toutes les analyses en une matrice finale consolidée.
+  preconditions:
+  - Toutes les étapes précédentes terminées
+  actions:
+  - scripts/gen_matrice_finale.py
+  output_attendu: outputs/matrice_finale.xlsx
+  criticite: haute
+- id: O6
+  nom: Soumission du dossier
+  description: Préparer et soumettre le dossier de certification finalisé.
+  preconditions:
+  - matrice finale générée
+  actions:
+  - scripts/soumettre_dossier.py
+  output_attendu: log/soumission_effectuee.txt
+  criticite: critique

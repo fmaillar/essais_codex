@@ -17,10 +17,12 @@ class Objectif:
     """Represent a certification objective."""
 
     id: str
+    nom: str = ""
     description: str = ""
     preconditions: List[str] = field(default_factory=list)
     actions: List[str] = field(default_factory=list)
     resultats_attendus: List[Dict[str, Any]] = field(default_factory=list)
+    criticite: str = ""
     statut: str = field(default="non_declenche", init=False)
 
     def preconditions_ok(self, engine: WorkflowCertifEngine) -> bool:
@@ -59,12 +61,17 @@ class Objectif:
     @staticmethod
     def from_dict(identifier: str, data: Dict[str, Any]) -> "Objectif":
         """Create an ``Objectif`` instance from a mapping."""
+        resultats = list(data.get("resultats_attendus", []))
+        if not resultats and data.get("output_attendu"):
+            resultats = [{"fichier": data["output_attendu"], "existe": True}]
         return Objectif(
             id=identifier,
+            nom=data.get("nom", ""),
             description=data.get("description", ""),
             preconditions=list(data.get("preconditions", [])),
             actions=list(data.get("actions", [])),
-            resultats_attendus=list(data.get("resultats_attendus", [])),
+            resultats_attendus=resultats,
+            criticite=data.get("criticite", ""),
         )
 
 
@@ -86,7 +93,19 @@ class ObjectifManager:
         """Load objectives definitions from ``yaml_path``."""
         with yaml_path.open("r", encoding="utf-8") as fh:
             data = yaml.safe_load(fh) or {}
-        for ident, obj_data in (data.get("objectifs") or {}).items():
+
+        items: list[tuple[str, Dict[str, Any]]] = []
+        if isinstance(data, list):
+            items = [(item.get("id", ""), item) for item in data]
+        elif isinstance(data, dict):
+            if "objectifs" in data:
+                items = list(data.get("objectifs", {}).items())
+            else:
+                items = list(data.items())
+
+        for ident, obj_data in items:
+            if not ident:
+                continue
             self.objectifs[ident] = Objectif.from_dict(ident, obj_data)
         self._logger.info("%d objectifs charges", len(self.objectifs))
 
