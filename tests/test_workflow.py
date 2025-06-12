@@ -1,13 +1,22 @@
-import os
-import sys
 from pathlib import Path
+from core.workflow_engine import WorkflowCertifEngine
+from core.etapes import (
+    CheckExigencesStep,
+    CheckMOPStep,
+    CheckPreuvesStep,
+    SoumettreDossierStep,
+    GererRetoursStep,
+)
 
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from main import load_workflow
+def test_engine_steps() -> None:
+    mapping = {
+        "check_exigences": CheckExigencesStep,
+        "check_mop": CheckMOPStep,
+        "check_preuves": CheckPreuvesStep,
+        "soumettre_dossier": SoumettreDossierStep,
+        "gerer_retours": GererRetoursStep,
+    }
+    engine = WorkflowCertifEngine.from_yaml(Path("workflow_certif.yaml"), mapping)
+    assert len(engine.steps) == 5
 
-
-def test_load_workflow() -> None:
-    cfg = load_workflow(Path("workflow_certif.yaml"))
-    assert isinstance(cfg, dict)
-    assert len(cfg.get("steps", [])) == 5

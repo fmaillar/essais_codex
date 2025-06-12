@@ -11,7 +11,7 @@ dependencies = ["pandas", "openpyxl", "pyyaml"]
 run-certif = "main:main"
 
 [tool.setuptools]
-packages = ["scripts"]
+packages = ["scripts", "core", "core.etapes"]
 
 [build-system]
 requires = ["setuptools", "wheel"]

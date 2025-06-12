@@ -61,3 +61,4 @@ Ce fichier doit être placé à la racine du dépôt (`certif-workflow/`) avec :
 - `workflow_certif.yaml`
 - `Makefile`
 - `scripts/`
+- `core/` qui contient désormais les classes du moteur objet

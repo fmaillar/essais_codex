@@ -1,80 +1,34 @@
-"""Main orchestrator for the certification workflow."""
+"""Entry point for the object oriented certification workflow."""
 
 from __future__ import annotations
 
-import subprocess
 import sys
 from pathlib import Path
 
-import yaml
+from core import WorkflowCertifEngine
+from core.etapes import (
+    CheckExigencesStep,
+    CheckMOPStep,
+    CheckPreuvesStep,
+    SoumettreDossierStep,
+    GererRetoursStep,
+)
+
+STEP_MAP = {
+    "check_exigences": CheckExigencesStep,
+    "check_mop": CheckMOPStep,
+    "check_preuves": CheckPreuvesStep,
+    "soumettre_dossier": SoumettreDossierStep,
+    "gerer_retours": GererRetoursStep,
+}
 
 
-def load_workflow(yaml_path: Path) -> dict:
-    """Load YAML configuration for the workflow.
-
-    Parameters
-    ----------
-    yaml_path : Path
-        Path to the workflow configuration file.
-
-    Returns
-    -------
-    dict
-        Parsed YAML configuration.
-    """
-    with yaml_path.open("r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
-
-
-def run_step(step: dict) -> int:
-    """Execute a workflow step via its Python script.
-
-    Parameters
-    ----------
-    step : dict
-        Step configuration containing the script path and identifier.
-
-    Returns
-    -------
-    int
-        Return code from the executed script.
-    """
-    script = step.get("script")
-    if not script:
-        print(f"⚠️  Aucun script défini pour l'étape {step['id']}")
-        return 0
-
-    print(f"🔧 Étape : {step['id']}")
-    result = subprocess.run([sys.executable, script], capture_output=True, text=True)
-    print(result.stdout)
-    if result.stderr:
-        print(result.stderr)
-    return result.returncode
-
-
-def main(yaml_path: str) -> None:
-    """Run workflow steps sequentially.
-
-    Parameters
-    ----------
-    yaml_path : str
-        Path to the workflow configuration YAML file.
-
-    Returns
-    -------
-    None
-        Exits with status code of the last executed step.
-    """
-    config = load_workflow(Path(yaml_path))
-    steps = config.get("steps", [])
-
-    for step in steps:
-        rc = run_step(step)
-        if rc != 0:
-            print(f"❌ Étape échouée: {step['id']}")
-            sys.exit(rc)
-
-    print("✅ Workflow terminé avec succès")
+def main(yaml_path: str = "workflow_certif.yaml") -> None:
+    """Run the workflow defined in ``yaml_path``."""
+    engine = WorkflowCertifEngine.from_yaml(Path(yaml_path), STEP_MAP)
+    rc = engine.run()
+    if rc != 0:
+        sys.exit(rc)
 
 
 if __name__ == "__main__":

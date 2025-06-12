@@ -1,6 +1,9 @@
 # Workflow Certification CAF
 
 This project automates document certification steps defined in `workflow_certif.yaml`.
+The refactored version relies on a small object-oriented engine located in
+`core/`. Each workflow step is implemented as a class so that new stages can be
+plugged easily.
 
 ## Requirements
 - Python 3.10+
@@ -30,7 +33,8 @@ make doc
 ```
 
 ## Repository layout
-- `scripts/` individual step scripts
+- `core/` engine and step classes
+- `scripts/` legacy procedural scripts
 - `workflow_certif.yaml` workflow configuration
 - `logs/` execution logs
 - `audit/` CSV audit reports

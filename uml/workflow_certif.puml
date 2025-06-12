@@ -1,0 +1,16 @@
+@startuml
+!define Table(x) class "x" as x
+
+class CertificationDossier
+class WorkflowCertifEngine
+interface EtapeWorkflow
+
+EtapeWorkflow <|-- CheckExigencesStep
+EtapeWorkflow <|-- CheckMOPStep
+EtapeWorkflow <|-- CheckPreuvesStep
+EtapeWorkflow <|-- SoumettreDossierStep
+EtapeWorkflow <|-- GererRetoursStep
+
+WorkflowCertifEngine --> EtapeWorkflow
+WorkflowCertifEngine --> CertificationDossier
+@enduml
