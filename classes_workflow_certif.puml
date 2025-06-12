@@ -1,0 +1,64 @@
+
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam classFontStyle bold
+
+package "workflow_certif" {
+  class CertificationDossier {
+    - id: str
+    - chemin_dossier: Path
+    - statut: str
+    + charger_documents()
+    + sauvegarder_statut()
+  }
+
+  abstract class EtapeWorkflow {
+    + executer(dossier: CertificationDossier): bool
+  }
+
+  class VerificationPreuves {
+    + executer(dossier: CertificationDossier): bool
+  }
+
+  class AnalyseRetours {
+    + executer(dossier: CertificationDossier): bool
+  }
+
+  class ValidationMOP {
+    + executer(dossier: CertificationDossier): bool
+  }
+
+  class SoumissionDossier {
+    + executer(dossier: CertificationDossier): bool
+  }
+
+  class WorkflowCertifEngine {
+    - etapes: List<EtapeWorkflow>
+    + charger_workflow(yaml_path: Path)
+    + lancer(dossier: CertificationDossier)
+  }
+
+  class RapportImpact {
+    - contenu: DataFrame
+    + generer(df: DataFrame)
+    + exporter_csv(path: Path)
+  }
+
+  class LoggerCertif {
+    + log_info(message: str)
+    + log_error(message: str)
+  }
+
+  EtapeWorkflow <|-- VerificationPreuves
+  EtapeWorkflow <|-- AnalyseRetours
+  EtapeWorkflow <|-- ValidationMOP
+  EtapeWorkflow <|-- SoumissionDossier
+
+  CertificationDossier --> RapportImpact
+  CertificationDossier --> LoggerCertif
+  WorkflowCertifEngine --> EtapeWorkflow
+  WorkflowCertifEngine --> CertificationDossier
+}
+
+@enduml
